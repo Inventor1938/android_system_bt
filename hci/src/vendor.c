@@ -104,12 +104,12 @@ void vendor_ssrcleanup(int reason) {
 
 static int send_command(vendor_opcode_t opcode, void *param) {
   assert(lib_interface != NULL);
-  return lib_interface->op(opcode, param);
+  return lib_interface->op((bt_vendor_opcode_t)opcode, param);
 }
 
 static int send_async_command(vendor_async_opcode_t opcode, void *param) {
   assert(lib_interface != NULL);
-  return lib_interface->op(opcode, param);
+  return lib_interface->op((bt_vendor_opcode_t)opcode, param);
 }
 
 static void set_callback(vendor_async_opcode_t opcode, vendor_cb callback) {

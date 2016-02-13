@@ -17,6 +17,12 @@
 #define DUMMY_COUNTER(c) CONCAT(__osi_dummy_, c)
 #define DUMMY_PTR DUMMY_COUNTER(__COUNTER__)
 
-#define COMPILE_ASSERT(x) char * DUMMY_PTR = !(x)
+// base/macros.h defines a COMPILE_ASSERT macro to the C++11 keyword
+// "static_assert" (it undef's COMPILE_ASSERT before redefining it).
+// C++ code that includes base and osi/include/osi.h can thus easily default to
+// the definition from libbase but we should check here to avoid compile errors.
+#ifndef COMPILE_ASSERT
+#define COMPILE_ASSERT(COND) typedef int failed_compile_assert[(COND) ? 1 : -1] __attribute__ ((unused))
+#endif  // COMPILE_ASSERT
 
 typedef uint32_t timeout_t;
