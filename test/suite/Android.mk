@@ -48,7 +48,7 @@ LOCAL_STATIC_LIBRARIES += \
   libbtcore \
   libosi
 
-LOCAL_CFLAGS += -std=c99 -Wall -Wno-unused-parameter -Wno-missing-field-initializers -Werror
+LOCAL_CFLAGS += -std=c99 -Wall -Wno-unused-parameter -Wno-missing-field-initializers -Werror -Os
 
 LOCAL_MULTILIB := 32
 

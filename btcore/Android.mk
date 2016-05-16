@@ -64,7 +64,7 @@ LOCAL_SRC_FILES := \
     ./test/uuid_test.cpp \
     ../osi/test/AllocationTestHarness.cpp
 
-LOCAL_CFLAGS := -Wall -Werror -Werror=unused-variable
+LOCAL_CFLAGS := -Wall -Werror -Werror=unused-variable -Os
 LOCAL_MODULE := net_test_btcore
 
 LOCAL_MODULE_TAGS := tests

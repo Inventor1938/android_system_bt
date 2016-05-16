@@ -134,7 +134,7 @@ ifeq ($(BOARD_USES_WIPOWER), true)
     LOCAL_C_INCLUDES+= $(LOCAL_PATH)/../wipowerif/include
 endif
 
-LOCAL_CFLAGS += -DBUILDCFG $(bdroid_CFLAGS) -Wno-error=maybe-uninitialized -Wno-error=uninitialized -Wno-error=unused-parameter
+LOCAL_CFLAGS += -DBUILDCFG $(bdroid_CFLAGS) -Wno-error=maybe-uninitialized -Wno-error=uninitialized -Wno-error=unused-parameter -Os
 LOCAL_CONLYFLAGS := -std=c99
 
 ifeq ($(TARGET_PRODUCT), full_crespo)

@@ -64,7 +64,7 @@ LOCAL_SRC_FILES := \
     ./test/interop_test.cpp \
     ./test/classic/peer_test.cpp
 
-LOCAL_CFLAGS := -Wall -Werror -Werror=unused-variable
+LOCAL_CFLAGS := -Wall -Werror -Werror=unused-variable -Os
 LOCAL_MODULE := net_test_device
 LOCAL_MODULE_TAGS := tests
 LOCAL_SHARED_LIBRARIES := liblog libdl

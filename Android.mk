@@ -38,7 +38,8 @@ bdroid_CFLAGS += \
   -Wno-unused-parameter \
   -Wunused-but-set-variable \
   -UNDEBUG \
-  -DLOG_NDEBUG=1
+  -DLOG_NDEBUG=1 \
+  -Os
 
 include $(call all-subdir-makefiles)
 
