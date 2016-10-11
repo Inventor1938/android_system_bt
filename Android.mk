@@ -28,28 +28,15 @@ ifeq ($(BOARD_USES_WIPOWER), true)
 bdroid_CFLAGS  += -DWIPOWER_SUPPORTED
 endif
 
-#
-# Common C/C++ compiler flags.
-#
-# -Wno-constant-logical-operand is needed for code in l2c_utils.c that is
-#  intentional.
-# -Wno-gnu-variable-sized-type-not-at-end is needed, because struct BT_HDR
-#  is defined as a variable-size header in a struct.
-# -Wno-typedef-redefinition is needed because of the way the struct typedef
-#  is done in osi/include header files. This issue can be obsoleted by
-#  switching to C11 or C++.
-# -Wno-unused-parameter is needed, because there are too many unused
-#  parameters in all the code.
-#
-bluetooth_CFLAGS += \
-  -fvisibility=hidden \
+ifeq ($(strip $(AUDIO_FEATURE_ENABLED_SPLIT_A2DP)),true)
+  bdroid_CFLAGS += -DBTA_AV_SPLIT_A2DP_ENABLED
+  bdroid_CFLAGS += -DBTA_AV_SPLIT_A2DP_DEF_FREQ_48KHZ
+endif
+
+bdroid_CFLAGS += \
   -Wall \
-  -Wextra \
-  -Werror \
-  -Wno-constant-logical-operand \
-  -Wno-gnu-variable-sized-type-not-at-end \
-  -Wno-typedef-redefinition \
   -Wno-unused-parameter \
+  -Wunused-but-set-variable \
   -UNDEBUG \
   -DLOG_NDEBUG=1 \
   -Os

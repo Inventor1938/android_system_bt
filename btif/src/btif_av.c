@@ -125,8 +125,14 @@ typedef struct
 ******************************************************************************/
 static btav_callbacks_t *bt_av_src_callbacks = NULL;
 static btav_callbacks_t *bt_av_sink_callbacks = NULL;
-static btif_av_cb_t btif_av_cb = {0, {{0}}, 0, 0, 0, 0};
-static alarm_t *av_open_on_rc_timer = NULL;
+static btif_av_cb_t btif_av_cb[BTIF_AV_NUM_CB];
+static TIMER_LIST_ENT tle_av_open_on_rc;
+static btif_sm_event_t idle_rc_event;
+static tBTA_AV idle_rc_data;
+static int btif_max_av_clients = 1;
+static BOOLEAN enable_multicast = FALSE;
+static BOOLEAN is_multicast_supported = FALSE;
+static BOOLEAN multicast_disabled = FALSE;
 
 /* both interface and media task needs to be ready to alloc incoming request */
 #define CHECK_BTAV_INIT() if (((bt_av_src_callbacks == NULL) &&(bt_av_sink_callbacks == NULL)) \

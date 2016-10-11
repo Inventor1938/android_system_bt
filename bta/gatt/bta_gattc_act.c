@@ -1207,6 +1207,7 @@ void bta_gattc_read_multi(tBTA_GATTC_CLCB *p_clcb, tBTA_GATTC_DATA *p_data)
 void bta_gattc_write(tBTA_GATTC_CLCB *p_clcb, tBTA_GATTC_DATA *p_data)
 {
     UINT16              handle = 0;
+    tGATT_VALUE         attr = {0};
     tBTA_GATT_STATUS    status = BTA_GATT_OK;
 
     if (bta_gattc_enqueue(p_clcb, p_data))
@@ -1220,10 +1221,7 @@ void bta_gattc_write(tBTA_GATTC_CLCB *p_clcb, tBTA_GATTC_DATA *p_data)
         }
         else
         {
-            tGATT_VALUE attr;
-
-            attr.conn_id = p_clcb->bta_conn_id;
-            attr.handle = handle;
+            attr.handle= handle;
             attr.offset = p_data->api_write.offset;
             attr.len    = p_data->api_write.len;
             attr.auth_req = p_data->api_write.auth_req;

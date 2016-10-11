@@ -263,29 +263,10 @@ static int btif_rc_get_idx_by_addr(BD_ADDR address);
 #if (AVRC_CTLR_INCLUDED == TRUE)
 static void handle_avk_rc_metamsg_cmd(tBTA_AV_META_MSG *pmeta_msg);
 static void handle_avk_rc_metamsg_rsp(tBTA_AV_META_MSG *pmeta_msg);
-static void btif_rc_ctrl_upstreams_rsp_cmd(
-    UINT8 event, tAVRC_COMMAND *pavrc_cmd, UINT8 label);
-static void rc_ctrl_procedure_complete();
-static void rc_stop_play_status_timer();
-static void register_for_event_notification (btif_rc_supported_event_t *p_event);
-static void handle_get_capability_response (tBTA_AV_META_MSG *pmeta_msg, tAVRC_GET_CAPS_RSP *p_rsp);
-static void handle_app_attr_response (tBTA_AV_META_MSG *pmeta_msg, tAVRC_LIST_APP_ATTR_RSP *p_rsp);
-static void handle_app_val_response (tBTA_AV_META_MSG *pmeta_msg, tAVRC_LIST_APP_VALUES_RSP *p_rsp);
-static void handle_app_cur_val_response (tBTA_AV_META_MSG *pmeta_msg, tAVRC_GET_CUR_APP_VALUE_RSP *p_rsp);
-static void handle_app_attr_txt_response (tBTA_AV_META_MSG *pmeta_msg, tAVRC_GET_APP_ATTR_TXT_RSP *p_rsp);
-static void handle_app_attr_val_txt_response (tBTA_AV_META_MSG *pmeta_msg, tAVRC_GET_APP_ATTR_TXT_RSP *p_rsp);
-static void handle_get_playstatus_response (tBTA_AV_META_MSG *pmeta_msg, tAVRC_GET_PLAY_STATUS_RSP *p_rsp);
-static void handle_get_elem_attr_response (tBTA_AV_META_MSG *pmeta_msg, tAVRC_GET_ELEM_ATTRS_RSP *p_rsp);
-static void handle_set_app_attr_val_response (tBTA_AV_META_MSG *pmeta_msg, tAVRC_RSP *p_rsp);
-static bt_status_t get_play_status_cmd(void);
-static bt_status_t get_player_app_setting_attr_text_cmd (UINT8 *attrs, UINT8 num_attrs);
-static bt_status_t get_player_app_setting_value_text_cmd (UINT8 *vals, UINT8 num_vals);
-static bt_status_t register_notification_cmd (UINT8 label, UINT8 event_id, UINT32 event_value);
-static bt_status_t get_element_attribute_cmd (uint8_t num_attribute, uint32_t *p_attr_ids);
-static bt_status_t getcapabilities_cmd (uint8_t cap_id);
-static bt_status_t list_player_app_setting_attrib_cmd(void);
-static bt_status_t list_player_app_setting_value_cmd(uint8_t attrib_id);
-static bt_status_t get_player_app_setting_cmd(uint8_t num_attrib, uint8_t* attrib_ids);
+static void btif_rc_ctrl_upstreams_rsp_cmd(UINT16 event, tAVRC_COMMAND *pavrc_cmd,
+                                           UINT8* p_buf, UINT16 buf_len, UINT8 index);
+static void btif_rc_ctrl_upstreams_rsp_evt(UINT16 event, tAVRC_RESPONSE *pavrc_resp,
+                                           UINT8* p_buf, UINT16 buf_len, UINT8 rsp_type, UINT8 index);
 #endif
 
 /*Added for Browsing Message Response */
@@ -3411,60 +3392,8 @@ static bt_status_t changepath_rsp(uint8_t status_code, uint32_t item_count, bt_b
 
     if (rc_index == btif_max_rc_clients)
     {
-        attr_index = p_app_settings->attr_index;
-        p_app_settings->attrs[attr_index].num_val = p_rsp->num_val;
-        for (xx = 0; xx < p_rsp->num_val; xx++)
-        {
-            p_app_settings->attrs[attr_index].attr_val[xx] = p_rsp->vals[xx];
-        }
-        attr_index++;
-        p_app_settings->attr_index++;
-        if (attr_index < p_app_settings->num_attrs)
-        {
-            list_player_app_setting_value_cmd (p_app_settings->attrs[p_app_settings->attr_index].attr_id);
-        }
-        else if (p_app_settings->ext_attr_index < p_app_settings->num_ext_attrs)
-        {
-            attr_index = 0;
-            p_app_settings->ext_attr_index = 0;
-            list_player_app_setting_value_cmd (p_app_settings->ext_attrs[attr_index].attr_id);
-        }
-        else
-        {
-            for (xx = 0; xx < p_app_settings->num_attrs; xx++)
-            {
-                attrs[xx] = p_app_settings->attrs[xx].attr_id;
-            }
-            get_player_app_setting_cmd (p_app_settings->num_attrs, attrs);
-            HAL_CBACK (bt_rc_ctrl_callbacks, playerapplicationsetting_cb, &rc_addr,
-                        p_app_settings->num_attrs, p_app_settings->attrs, 0, NULL);
-        }
-    }
-    else if (p_app_settings->ext_attr_index < p_app_settings->num_ext_attrs)
-    {
-        attr_index = p_app_settings->ext_attr_index;
-        p_app_settings->ext_attrs[attr_index].num_val = p_rsp->num_val;
-        for (xx = 0; xx < p_rsp->num_val; xx++)
-        {
-            p_app_settings->ext_attrs[attr_index].ext_attr_val[xx].val = p_rsp->vals[xx];
-        }
-        attr_index++;
-        p_app_settings->ext_attr_index++;
-        if (attr_index < p_app_settings->num_ext_attrs)
-        {
-            list_player_app_setting_value_cmd (p_app_settings->ext_attrs[p_app_settings->ext_attr_index].attr_id);
-        }
-        else
-        {
-            UINT8 attr[AVRC_MAX_APP_ATTR_SIZE];
-            UINT8 xx;
-
-            for (xx = 0; xx < p_app_settings->num_ext_attrs; xx++)
-            {
-                attr[xx] = p_app_settings->ext_attrs[xx].attr_id;
-            }
-            get_player_app_setting_attr_text_cmd(attr, xx);
-        }
+        BTIF_TRACE_ERROR("%s: on unknown index", __FUNCTION__);
+        return BT_STATUS_FAIL;
     }
     BTIF_TRACE_DEBUG("- %s on index = %d", __FUNCTION__, rc_index);
 
@@ -3537,12 +3466,7 @@ static bt_status_t get_itemattr_rsp(uint8_t num_attr, btrc_element_attr_val_t *p
     }
     BTIF_TRACE_DEBUG("- %s on index = %d", __FUNCTION__, rc_index);
 
-        for (xx = 0; xx < p_app_settings->num_attrs; xx++)
-        {
-            attrs[xx] = p_app_settings->attrs[xx].attr_id;
-        }
-        HAL_CBACK (bt_rc_ctrl_callbacks, playerapplicationsetting_cb, &rc_addr,
-                    p_app_settings->num_attrs, p_app_settings->attrs, 0, NULL);
+    memset(element_attrs, 0, sizeof(tAVRC_ATTR_ENTRY) * num_attr);
 
     if (num_attr == 0)
     {
@@ -3615,11 +3539,6 @@ static bt_status_t is_device_active_in_handoff(bt_bdaddr_t *bd_addr)
         {
             return BT_STATUS_FAIL;
         }
-        HAL_CBACK (bt_rc_ctrl_callbacks, playerapplicationsetting_cb, &rc_addr,
-                    p_app_settings->num_attrs, p_app_settings->attrs, 0, NULL);
-
-        get_player_app_setting_cmd (xx, attrs);
-        return;
     }
     else if (playing_devices == 0)
     {
@@ -3652,35 +3571,9 @@ static bt_status_t is_device_active_in_handoff(bt_bdaddr_t *bd_addr)
     }
     else
     {
-        UINT8 x;
-
-        for (xx = 0; xx < p_app_settings->num_attrs; xx++)
-        {
-            attrs[xx] = p_app_settings->attrs[xx].attr_id;
-        }
-        for (x = 0; x < p_app_settings->num_ext_attrs; x++)
-        {
-            attrs[xx+x] = p_app_settings->ext_attrs[x].attr_id;
-        }
-        HAL_CBACK (bt_rc_ctrl_callbacks, playerapplicationsetting_cb, &rc_addr,
-                    p_app_settings->num_attrs, p_app_settings->attrs,
-                    p_app_settings->num_ext_attrs, p_app_settings->ext_attrs);
-        get_player_app_setting_cmd (xx + x, attrs);
-
-        /* Free the application settings information after sending to
-         * application.
-         */
-        for (xx = 0; xx < p_app_settings->ext_attr_index; xx++)
-        {
-            int x;
-            btrc_player_app_ext_attr_t *p_ext_attr = &p_app_settings->ext_attrs[xx];
-
-            for (x = 0; x < p_ext_attr->num_val; x++)
-                osi_free_and_reset((void **)&p_ext_attr->ext_attr_val[x].p_str);
-            p_ext_attr->num_val = 0;
-            osi_free_and_reset((void **)&p_app_settings->ext_attrs[xx].p_str);
-        }
-        p_app_settings->num_attrs = 0;
+        BTIF_TRACE_ERROR("%s unchecked state: connected devices: %d playing devices: %d",
+            __FUNCTION__, connected_devices, playing_devices);
+        return BT_STATUS_SUCCESS;
     }
 }
 
